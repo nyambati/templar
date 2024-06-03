@@ -47,7 +47,7 @@ func (g *Generator) parseFile(file, path string) error {
 		return err
 	}
 
-	tmpl, err := template.New("file").Funcs(sprig.FuncMap()).Parse(string(buffer))
+	tmpl, err := template.New(file).Funcs(sprig.FuncMap()).Parse(string(buffer))
 	if err != nil {
 		return err
 	}
@@ -65,14 +65,14 @@ func (g *Generator) parseFile(file, path string) error {
 	return tmpl.Execute(outFile, g.Vars)
 }
 
-func (g *Generator) parsePath(path string) (string, error) {
-	relPath, err := filepath.Rel(g.InputDir, path)
+func (g *Generator) parsePath(srcPath string) (string, error) {
+	relPath, err := filepath.Rel(g.InputDir, srcPath)
 	if err != nil {
 		return "", err
 	}
 
 	// Process template for directory names
-	tmpl, err := template.New("path").Parse(relPath)
+	tmpl, err := template.New("path").Funcs(sprig.FuncMap()).Parse(relPath)
 	if err != nil {
 		return "", err
 	}
