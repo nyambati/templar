@@ -1,6 +1,8 @@
 package generator_test
 
 import (
+	"errors"
+	"fmt"
 	"path/filepath"
 	"testing"
 
@@ -10,7 +12,25 @@ import (
 
 type Vars map[string]string
 
-func (v Vars) Validate() error { return nil }
+func (vars *Vars) Validate() error {
+	required := []string{
+		"vertical",
+		"environment",
+		"region",
+		"account_id",
+		"account_name",
+	}
+	errs := []error{}
+	for _, v := range required {
+		if _, ok := (*vars)[v]; !ok {
+			errs = append(errs, fmt.Errorf("%s is required", v))
+		}
+	}
+	if len(errs) > 0 {
+		return errors.Join(errs...)
+	}
+	return nil
+}
 
 func TestGenerator_Generate(t *testing.T) {
 	type fields struct {
@@ -25,12 +45,12 @@ func TestGenerator_Generate(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "test",
+			name: "WithValidVars",
 			fields: fields{
 				InputDir:  "../../testdata/templates",
 				OutputDir: "../../testdata/out",
 				Overwrite: false,
-				Vars: Vars{
+				Vars: &Vars{
 					"vertical":     "dp-cloud-infra",
 					"environment":  "dev",
 					"region":       "us-east-1",
@@ -40,13 +60,29 @@ func TestGenerator_Generate(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "WithInvalidVars",
+			fields: fields{
+				InputDir:  "../../testdata/templates",
+				OutputDir: "../../testdata/out",
+				Overwrite: false,
+				Vars: &Vars{
+					"vertical":    "dp-cloud-infra",
+					"environment": "dev",
+					"region":      "us-east-1",
+				},
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		path, _ := filepath.Abs(tt.fields.InputDir)
 		t.Run(tt.name, func(t *testing.T) {
 			g, err := generator.New(path, tt.fields.OutputDir, tt.fields.Overwrite, tt.fields.Vars)
-			if err != nil {
+			if (err != nil) != tt.wantErr {
 				t.Errorf("Generator.New() error = %v", err)
+			} else if g == nil {
+				return
 			}
 			if err := g.Generate(); (err != nil) != tt.wantErr {
 				t.Errorf("Generator.Generate() error = %v, wantErr %v", err, tt.wantErr)

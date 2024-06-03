@@ -19,7 +19,7 @@ type Config struct {
 	Vars         Vars
 }
 
-func (c *Vars) Validate() error {
+func (vars *Vars) Validate() error {
 	required := []string{
 		"vertical",
 		"environment",
@@ -28,9 +28,9 @@ func (c *Vars) Validate() error {
 		"account_name",
 	}
 	errs := []error{}
-	for _, v := range required {
-		if _, ok := (*c)[v]; !ok {
-			errs = append(errs, fmt.Errorf("%s is required", v))
+	for _, value := range required {
+		if _, ok := (*vars)[value]; !ok {
+			errs = append(errs, fmt.Errorf("%s is required", value))
 		}
 	}
 	if len(errs) > 0 {
