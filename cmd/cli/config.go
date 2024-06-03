@@ -40,12 +40,8 @@ func (vars *Vars) Validate() error {
 }
 
 func NewConfig(path string) Config {
-	if path == "" {
-		path = "."
-	}
 	v := viper.New()
-	v.SetConfigFile("templar.yaml")
-	v.AddConfigPath(path)
+	v.SetConfigFile(fmt.Sprintf("%s/templar.yaml", path))
 	if err := v.ReadInConfig(); err != nil {
 		panic(err)
 	}

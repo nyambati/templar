@@ -11,10 +11,11 @@ import (
 )
 
 type Generator struct {
-	InputDir  string
-	OutputDir string
-	Overwrite bool
-	Vars      Vars
+	InputDir      string
+	OutputDir     string
+	Overwrite     bool
+	FileExtension string
+	Vars          Vars
 }
 
 // GenerateProject creates a project from a template directory.
@@ -39,9 +40,10 @@ func (g *Generator) Generate() error {
 }
 
 func (g *Generator) parseFile(file, path string) error {
-	if !strings.Contains(file, ".hcl") {
+	if g.FileExtension != "" && !strings.HasSuffix(file, g.FileExtension) {
 		return nil
 	}
+
 	buffer, err := os.ReadFile(file)
 	if err != nil {
 		return err

@@ -8,6 +8,7 @@ import (
 
 var answers = make(map[string]interface{})
 var config Config
+var configPath string
 
 var rootCmd = &cobra.Command{
 	Use: "templar",
@@ -16,7 +17,7 @@ var rootCmd = &cobra.Command{
 var generatorCmd = &cobra.Command{
 	Use: "generate",
 	PreRun: func(cmd *cobra.Command, args []string) {
-		config = NewConfig(".")
+		config = NewConfig(configPath)
 		for k, v := range config.Vars {
 			answers[k] = v
 		}
@@ -50,4 +51,11 @@ var generatorCmd = &cobra.Command{
 func main() {
 	rootCmd.AddCommand(generatorCmd)
 	rootCmd.Execute()
+}
+
+func init() {
+	rootCmd.PersistentFlags().StringVarP(&config.TemplatesDir, "template-dir", "t", "", "Templates directory")
+	rootCmd.PersistentFlags().StringVarP(&config.OutputDir, "output-dir", "o", "", "Output directory")
+	rootCmd.PersistentFlags().BoolVarP(&config.Overwrite, "overwrite", "w", false, "Overwrite existing files")
+	rootCmd.PersistentFlags().StringVarP(&configPath, "config", "c", ".", "Config file path")
 }

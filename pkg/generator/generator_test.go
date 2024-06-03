@@ -51,11 +51,11 @@ func TestGenerator_Generate(t *testing.T) {
 				OutputDir: "../../testdata/out",
 				Overwrite: false,
 				Vars: &Vars{
-					"vertical":     "dp-cloud-infra",
+					"vertical":     "test",
 					"environment":  "dev",
 					"region":       "us-east-1",
 					"account_id":   "123456789",
-					"account_name": "dp-cloud-infra",
+					"account_name": "testaccount",
 				},
 			},
 			wantErr: false,
